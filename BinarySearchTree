@@ -1,0 +1,190 @@
+import java.util.ArrayList;
+
+public class BinarySearchTree {
+
+    private Node root;
+
+    public BinarySearchTree() {
+        root = null;
+    }
+
+    public BinarySearchTree(Node root) {
+        this.root = root;
+    }
+
+    public Node getRoot() {
+        return root;
+    }
+
+    /* ---------- INSERCIÓN ---------- */
+
+    // Se actualiza la raíz con el resultado del método recursivo
+    public void insertNode(Node newNode) {
+        root = insertRecursive(newNode, root);
+    }
+
+    /*
+     * Parte C: política de duplicados.
+     * Versión original (descarta claves iguales, por eso se perdían clientes):
+     *   if (key < raíz) izquierda; else if (key > raíz) derecha;
+     *   // si son iguales no hace nada y el nodo se pierde
+     *
+     * Versión actual: las claves iguales se envían a la rama DERECHA.
+     * Invariante: izquierda < clave <= derecha.
+     */
+    public Node insertRecursive(Node nodeToInsert, Node rootNode) {
+        // condición de parada: punto de inserción encontrado
+        if (rootNode == null)
+            return nodeToInsert;
+
+        if (nodeToInsert.getKey() < rootNode.getKey())
+            rootNode.setLeft(insertRecursive(nodeToInsert, rootNode.getLeft()));
+        else
+            rootNode.setRight(insertRecursive(nodeToInsert, rootNode.getRight()));
+        return rootNode;
+    }
+
+    /* ---------- BÚSQUEDA ---------- */
+
+    public boolean searchNodeRecursive(int key, Node rootNode) {
+        if (rootNode == null)
+            return false;
+        if (rootNode.getKey() == key)
+            return true;
+        if (rootNode.getKey() > key)
+            return searchNodeRecursive(key, rootNode.getLeft());
+        return searchNodeRecursive(key, rootNode.getRight());
+    }
+
+  
+    public Node buscarNodo(int key, Node rootNode) {
+        if (rootNode == null)
+            return null;
+        if (rootNode.getKey() == key)
+            return rootNode;
+        if (key < rootNode.getKey())
+            return buscarNodo(key, rootNode.getLeft());
+        return buscarNodo(key, rootNode.getRight());
+    }
+
+    /* ---------- RECORRIDOS (vistos en clase) ---------- */
+
+    public void InOrder(Node root) {
+        if (root == null)
+            return;
+        InOrder(root.getLeft());
+        System.out.println("->" + root.getKey());
+        InOrder(root.getRight());
+    }
+
+    public void preOrder(Node root) {
+        if (root == null)
+            return;
+        System.out.println("->" + root.getKey());
+        preOrder(root.getLeft());
+        preOrder(root.getRight());
+    }
+
+    public void posOrder(Node root) {
+        if (root == null)
+            return;
+        posOrder(root.getLeft());
+        posOrder(root.getRight());
+        System.out.println("->" + root.getKey());
+    }
+
+    /* ---------- OPERACIONES ---------- */
+
+    /** Lista de llaves en orden ascendente. */
+    public ArrayList<Integer> getKeyList() {
+        ArrayList<Integer> keyList = new ArrayList<>();
+        getKeyListRec(root, keyList);
+        return keyList;
+    }
+
+    private void getKeyListRec(Node node, ArrayList<Integer> keyList) {
+        if (node == null)
+            return;
+        getKeyListRec(node.getLeft(), keyList);
+        keyList.add(node.getKey());
+        getKeyListRec(node.getRight(), keyList);
+    }
+
+ 
+    public ArrayList<Cliente> clientesAscendente() {
+        ArrayList<Cliente> lista = new ArrayList<>();
+        clientesAscendenteRec(root, lista);
+        return lista;
+    }
+
+    private void clientesAscendenteRec(Node node, ArrayList<Cliente> lista) {
+        if (node == null)
+            return;
+        clientesAscendenteRec(node.getLeft(), lista);
+        lista.add((Cliente) node.getValue());
+        clientesAscendenteRec(node.getRight(), lista);
+    }
+
+   
+    public ArrayList<Cliente> mayoresN(int n) {
+        ArrayList<Cliente> lista = new ArrayList<>();
+        if (n <= 0)
+            return lista;
+        mayoresNRec(root, n, lista);
+        return lista;
+    }
+
+    private void mayoresNRec(Node node, int n, ArrayList<Cliente> lista) {
+        if (node == null || lista.size() >= n)
+            return;
+        mayoresNRec(node.getRight(), n, lista);
+        if (lista.size() < n)
+            lista.add((Cliente) node.getValue());
+        mayoresNRec(node.getLeft(), n, lista);
+    }
+
+   
+    public ArrayList<Cliente> clientesEnRango(int min, int max) {
+        ArrayList<Cliente> lista = new ArrayList<>();
+        clientesEnRangoRec(root, min, max, lista);
+        return lista;
+    }
+
+    private void clientesEnRangoRec(Node node, int min, int max, ArrayList<Cliente> lista) {
+        if (node == null)
+            return;
+        int key = node.getKey();
+        if (key > min)
+            clientesEnRangoRec(node.getLeft(), min, max, lista);
+        if (key >= min && key <= max)
+            lista.add((Cliente) node.getValue());
+        if (key <= max)
+            clientesEnRangoRec(node.getRight(), min, max, lista);
+    }
+
+ 
+    public Cliente minimo() {
+        if (root == null)
+            return null;
+        Node actual = root;
+        while (actual.getLeft() != null)
+            actual = actual.getLeft();
+        return (Cliente) actual.getValue();
+    }
+
+    public Cliente maximo() {
+        if (root == null)
+            return null;
+        Node actual = root;
+        while (actual.getRight() != null)
+            actual = actual.getRight();
+        return (Cliente) actual.getValue();
+    }
+
+  
+    public int altura(Node rootNode) {
+        if (rootNode == null)
+            return -1;
+        return 1 + Math.max(altura(rootNode.getLeft()), altura(rootNode.getRight()));
+    }
+}
